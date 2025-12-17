@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getCurrentUser, signOut, fetchUserAttributes } from "aws-amplify/auth";
-import "../lib/amplify"; // Ensure Amplify is configured
+import "../lib/amplify";
 
 export interface UserProfile {
     username?: string;
@@ -13,6 +13,8 @@ export interface UserProfile {
     gender?: string;
     height?: string;
     dob?: string;
+    hobbies?: string[];
+    interests?: string[];
     [key: string]: any;
 }
 

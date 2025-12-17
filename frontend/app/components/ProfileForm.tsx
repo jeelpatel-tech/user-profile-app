@@ -6,13 +6,14 @@ import { Camera, Save, X, Calendar, User as UserIcon, Ruler, UserCircle } from "
 
 interface ProfileFormProps {
     initialData: UserProfile;
-    onSave: (data: UserProfile) => void;
+    onSave: (data: UserProfile, file?: File) => Promise<void> | void;
     readOnly?: boolean;
 }
 
 export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFormProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<UserProfile>(initialData);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -28,12 +29,13 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                 setFormData(prev => ({ ...prev, image: reader.result as string }));
             };
             reader.readAsDataURL(file);
+            setSelectedFile(file);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData);
+        await onSave(formData, selectedFile || undefined);
         setIsEditing(false);
     };
 
@@ -173,6 +175,31 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                                     className="block w-full pl-10 pr-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                Hobbies (comma separated)
+                            </label>
+                            <input
+                                type="text"
+                                value={Array.isArray(formData.hobbies) ? formData.hobbies.join(", ") : formData.hobbies || ""}
+                                onChange={(e) => setFormData(prev => ({ ...prev, hobbies: e.target.value.split(",").map(s => s.trim()) }))}
+                                disabled={!isEditable}
+                                className="block w-full px-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                Interests (comma separated)
+                            </label>
+                            <input
+                                type="text"
+                                value={Array.isArray(formData.interests) ? formData.interests.join(", ") : formData.interests || ""}
+                                onChange={(e) => setFormData(prev => ({ ...prev, interests: e.target.value.split(",").map(s => s.trim()) }))}
+                                disabled={!isEditable}
+                                className="block w-full px-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                            />
                         </div>
                     </div>
 

@@ -1,20 +1,98 @@
 "use client";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, UserProfile } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ProfileForm } from "../../components/ProfileForm";
+import { getUserProfileFromAPI, updateUserProfileInAPI, uploadProfileImage, getProfileImageUrl } from "../../services/profile";
 
 export default function ProfilePage() {
     const { user, isLoading } = useAuth();
     const router = useRouter();
+    const [profileData, setProfileData] = useState<UserProfile | null>(null);
+    const [fetching, setFetching] = useState(true);
 
     useEffect(() => {
         if (!isLoading && !user) {
             router.push("/login");
+            return;
+        }
+
+        const loadProfile = async () => {
+            if (user?.sub) {
+                try {
+                    const apiData = await getUserProfileFromAPI(user.sub);
+                    let imageUrl = apiData?.image;
+                    if (imageUrl && !imageUrl.startsWith('http')) {
+                        imageUrl = await getProfileImageUrl(imageUrl);
+                    }
+
+                    setProfileData({
+                        ...user,
+                        ...apiData,
+                        image: imageUrl || user.image
+                    });
+                } catch (err) {
+                    console.error("Failed to load profile", err);
+                    setProfileData(user);
+                } finally {
+                    setFetching(false);
+                }
+            } else if (user) {
+                setProfileData(user);
+                setFetching(false);
+            }
+        };
+
+        if (user) {
+            loadProfile();
         }
     }, [isLoading, user, router]);
 
-    if (isLoading || !user) {
+    const handleSave = async (updatedData: UserProfile, file?: File) => {
+        if (!user?.sub) return;
+
+        try {
+            let imageKey = updatedData.image;
+
+            if (file) {
+                imageKey = await uploadProfileImage(file, user.sub);
+            } else if (imageKey && imageKey.startsWith('http')) {
+                imageKey = undefined;
+            }
+
+            const dataToSave: any = {
+                ...updatedData,
+                image: imageKey,
+            };
+
+            // Remove URL from save if it's undefined
+            if (!imageKey) delete dataToSave.image;
+
+            // #update
+            await updateUserProfileInAPI(user.sub, dataToSave);
+
+            // Reload to get fresh URLs and data
+            const freshData = await getUserProfileFromAPI(user.sub);
+            let freshUrl = freshData?.image;
+            if (freshUrl && !freshUrl.startsWith('http')) {
+                freshUrl = await getProfileImageUrl(freshUrl);
+            }
+
+            setProfileData(prev => ({
+                ...prev,
+                ...freshData,
+                image: freshUrl || prev?.image
+            }));
+
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            alert("Failed to update profile.");
+        }
+    };
+
+    if (isLoading || fetching || !profileData) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -26,25 +104,12 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Your Profile</h1>
-                <p className="text-neutral-600 dark:text-neutral-400 mt-2">Managed via AWS Cognito</p>
             </div>
 
-            <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow p-6 border border-neutral-200 dark:border-neutral-800">
-                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                    <div className="sm:col-span-1">
-                        <dt className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Email</dt>
-                        <dd className="mt-1 text-sm text-neutral-900 dark:text-white">{user.email || user.username}</dd>
-                    </div>
-                    <div className="sm:col-span-1">
-                        <dt className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Name</dt>
-                        <dd className="mt-1 text-sm text-neutral-900 dark:text-white">{user.name || "N/A"}</dd>
-                    </div>
-                    <div className="sm:col-span-2">
-                        <dt className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Cognito User ID</dt>
-                        <dd className="mt-1 text-sm text-mono text-neutral-900 dark:text-white">{user.sub || user.userId}</dd>
-                    </div>
-                </dl>
-            </div>
+            <ProfileForm
+                initialData={profileData}
+                onSave={handleSave}
+            />
         </div>
     );
 }
