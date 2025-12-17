@@ -179,7 +179,7 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
 
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                Hobbies (comma separated)
+                                Hobbies
                             </label>
                             <input
                                 type="text"
@@ -191,7 +191,7 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                Interests (comma separated)
+                                Interests
                             </label>
                             <input
                                 type="text"
