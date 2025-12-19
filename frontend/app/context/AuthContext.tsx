@@ -11,10 +11,9 @@ export interface UserProfile {
     role?: string;
     image?: string;
     gender?: string;
-    height?: string;
     dob?: string;
-    hobbies?: string[];
-    interests?: string[];
+    hobby?: string[];
+    interest?: string[];
     [key: string]: any;
 }
 
@@ -53,6 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             await signOut();
             setUser(null);
+            // Clear admin status from localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("isAdmin");
+            }
         } catch (error) {
             console.error("Error signing out: ", error);
         }

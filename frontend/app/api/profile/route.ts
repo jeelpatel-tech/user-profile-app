@@ -36,7 +36,7 @@ export async function GET(request: Request) {
         if (!response.Item) {
             return NextResponse.json({ message: "User not found", userId }, { status: 404 });
         }
-
+        console.log("check user data", response.Item)
         return NextResponse.json(response.Item);
     } catch (error) {
         console.error("DynamoDB GET Error:", error);

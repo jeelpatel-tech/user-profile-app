@@ -177,26 +177,27 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                             </div>
                         </div>
 
+
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                Hobbies
+                                Hobby
                             </label>
                             <input
                                 type="text"
-                                value={Array.isArray(formData.hobbies) ? formData.hobbies.join(", ") : formData.hobbies || ""}
-                                onChange={(e) => setFormData(prev => ({ ...prev, hobbies: e.target.value.split(",").map(s => s.trim()) }))}
+                                value={Array.isArray(formData.hobby) ? formData.hobby.join(", ") : formData.hobby || ""}
+                                onChange={(e) => setFormData(prev => ({ ...prev, hobby: e.target.value.split(",").map(s => s.trim()) }))}
                                 disabled={!isEditable}
                                 className="block w-full px-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                Interests
+                                Interest
                             </label>
                             <input
                                 type="text"
-                                value={Array.isArray(formData.interests) ? formData.interests.join(", ") : formData.interests || ""}
-                                onChange={(e) => setFormData(prev => ({ ...prev, interests: e.target.value.split(",").map(s => s.trim()) }))}
+                                value={Array.isArray(formData.interest) ? formData.interest.join(", ") : formData.interest || ""}
+                                onChange={(e) => setFormData(prev => ({ ...prev, interest: e.target.value.split(",").map(s => s.trim()) }))}
                                 disabled={!isEditable}
                                 className="block w-full px-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                             />

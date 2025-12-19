@@ -25,6 +25,15 @@ export function Navbar() {
                             <>
                                 {user ? (
                                     <div className="flex items-center gap-4">
+                                        {typeof window !== 'undefined' && localStorage.getItem("isAdmin") === "true" && (
+                                            <Link
+                                                href="/admin/dashboard"
+                                                className="flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                                            >
+                                                <span className="hidden sm:inline">Admin Dashboard</span>
+                                            </Link>
+                                        )}
+
                                         <Link
                                             href="/profile"
                                             className="flex items-center gap-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"

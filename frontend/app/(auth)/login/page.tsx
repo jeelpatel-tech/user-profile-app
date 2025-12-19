@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { signIn, signUp, confirmSignUp, type SignUpInput } from "aws-amplify/auth";
+import { useEffect, useState } from "react";
+import { signIn, signUp, confirmSignUp, type SignUpInput, fetchAuthSession } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, AlertCircle, ArrowRight, User as UserIcon } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -25,8 +25,21 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await signIn({ username: email, password });
+
+            // check user group from cognito pool
+            const session = await fetchAuthSession();
+            const groups = session.tokens?.accessToken?.payload["cognito:groups"];
+            const isAdminUser = Array.isArray(groups) && groups.includes("admin");
+
             await checkUser();
-            router.push("/profile");
+
+            // store in local storage
+            localStorage.setItem("isAdmin", isAdminUser ? "true" : "false");
+            if (isAdminUser) {
+                router.push("/admin/dashboard");
+            } else {
+                router.push("/profile");
+            }
         } catch (err: any) {
             setError(err.message || "Failed to sign in");
         } finally {
