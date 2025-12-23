@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProfileForm } from "../../components/ProfileForm";
 import { getUserProfileFromAPI, updateUserProfileInAPI, uploadProfileImage, getProfileImageUrl } from "../../services/profile";
+import { useToast } from "../../components/Toast";
 
 export default function ProfilePage() {
     const { user, isLoading } = useAuth();
+    const toast = useToast();
     const router = useRouter();
     const [profileData, setProfileData] = useState<UserProfile | null>(null);
     const [fetching, setFetching] = useState(true);
@@ -85,10 +87,10 @@ export default function ProfilePage() {
                 image: freshUrl || prev?.image
             }));
 
-            alert("Profile updated successfully!");
+            toast.success("Profile updated successfully!");
         } catch (error) {
             console.error("Error saving profile:", error);
-            alert("Failed to update profile.");
+            toast.error("Failed to update profile.");
         }
     };
 

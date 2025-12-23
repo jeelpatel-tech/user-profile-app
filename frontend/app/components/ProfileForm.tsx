@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react";
 import { UserProfile } from "../context/AuthContext";
-import { Camera, Save, X, Calendar, User as UserIcon, Ruler, UserCircle } from "lucide-react";
+import { Camera, Save, X, Calendar, User as UserIcon, Ruler, UserCircle, Loader2 } from "lucide-react";
+import { useToast } from "./Toast";
 
 interface ProfileFormProps {
     initialData: UserProfile;
@@ -12,9 +13,12 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFormProps) {
     const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<UserProfile>(initialData);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const toast = useToast();
+    let toastId: number;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -35,13 +39,20 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+
+        toastId = toast.loading("Saving profile...");
         await onSave(formData, selectedFile || undefined);
         setIsEditing(false);
+        setIsLoading(false);
+        toast.dismiss(toastId);
     };
 
     const handleCancel = () => {
         setFormData(initialData);
         setIsEditing(false);
+        setIsLoading(false);
+        toast.dismiss(toastId);
     };
 
     const isEditable = !readOnly && isEditing;
@@ -98,7 +109,7 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                Full Name
+                                Name
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -109,7 +120,7 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    disabled={!isEditable}
+                                    disabled={true}
                                     className="block w-full pl-10 pr-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                                 />
                             </div>
@@ -216,7 +227,11 @@ export function ProfileForm({ initialData, onSave, readOnly = false }: ProfileFo
                             </button>
                             <button
                                 type="submit"
-                                className="flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
+                                className={`flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white transition-colors shadow-lg ${isLoading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30'
+                                    }`}
+                                disabled={isLoading}
                             >
                                 <Save className="w-4 h-4 mr-2" />
                                 Save Changes

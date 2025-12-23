@@ -26,11 +26,11 @@ export default function AdminDashboard() {
             return;
         }
 
-        // if (!isLoading && user?.role !== "admin") {
-        //     console.log("User role:", user?.role, "- Redirecting to profile");
-        //     router.push("/profile");
-        //     return;
-        // }
+        if (typeof window !== 'undefined' && localStorage.getItem("isAdmin") != "true") {
+            console.log("User role:", user?.role, "- Redirecting to profile");
+            router.push("/profile");
+            return;
+        }
 
         const fetchUsers = async () => {
             try {
