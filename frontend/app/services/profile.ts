@@ -53,7 +53,7 @@ export const updateUserProfileInAPI = async (userId: string, data: Partial<UserP
             ...data
         };
 
-        delete input.email;
+        // delete input.email;
         delete input.username;
 
         const res = await fetch('/api/profile', {

@@ -66,6 +66,7 @@ export default function ProfilePage() {
             const dataToSave: any = {
                 ...updatedData,
                 image: imageKey,
+                email: user.email
             };
 
             // Remove URL from save if it's undefined
@@ -84,7 +85,8 @@ export default function ProfilePage() {
             setProfileData(prev => ({
                 ...prev,
                 ...freshData,
-                image: freshUrl || prev?.image
+                image: freshUrl || prev?.image,
+                email: user.email
             }));
 
             toast.success("Profile updated successfully!");

@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
+import { prisma } from '../../lib/prisma'
 
 const client = new DynamoDBClient({
     region: process.env.NEXT_PUBLIC_AWS_REGION,
@@ -31,15 +32,21 @@ export async function GET(request: Request) {
             },
         });
 
-        const response = await docClient.send(command);
+        const response = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        console.log("get user profile", response)
 
-        if (!response.Item) {
+        if (!response) {
             return NextResponse.json({ message: "User not found", userId }, { status: 404 });
         }
-        console.log("check user data", response.Item)
-        return NextResponse.json(response.Item);
+        console.log("check user data", response)
+        return NextResponse.json(response);
+
     } catch (error) {
-        console.error("DynamoDB GET Error:", error);
+        console.error("GET Error:", error);
         return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
     }
 }
@@ -54,19 +61,29 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Missing id in body" }, { status: 400 });
         }
 
-        const command = new PutCommand({
-            TableName: TABLE_NAME,
-            Item: {
-                id,
-                ...attributes
+        console.log("update user profile", body, attributes)
+        await prisma.user.upsert({
+            where: {
+                id: id,
             },
-        });
-
-        await docClient.send(command);
+            update: {
+                interest: attributes.interest || ["nulll"],
+            },
+            create: {
+                id: id,
+                interest: attributes.interest || [],
+                name: attributes.name || "null",
+                email: attributes.email || "null",
+                hobby: attributes.hobby || [],
+                height: attributes.height || "null",
+                gender: attributes.gender || "null",
+                dob: attributes.dob ? new Date(attributes.dob) : new Date(),
+            },
+        })
 
         return NextResponse.json({ success: true, item: body });
     } catch (error) {
-        console.error("DynamoDB POST Error:", error);
+        console.error("POST Error:", error);
         return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
     }
 }

@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 interface User {
     id: string;
     name?: string;
+    email?: string;
     role?: string;
     dob?: string;
     hobby?: string[];
     interest?: string[];
+    gender?: string;
 }
 
 export default function AdminDashboard() {
@@ -83,13 +85,16 @@ export default function AdminDashboard() {
                         <thead className="bg-neutral-50 dark:bg-neutral-800">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                                    ID
+                                    Email
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                                     Name
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                                     DOB
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                                    Gender
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                                     Hobby
@@ -103,13 +108,16 @@ export default function AdminDashboard() {
                             {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
-                                        {user.id}
+                                        {user.email}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
                                         {user.name || "-"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
-                                        {user.dob || "-"}
+                                        {user.dob ? user.dob.slice(0, 10) : "-"}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                                        {user.gender || "-"}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-neutral-900 dark:text-neutral-100">
                                         {user.hobby && user.hobby.length > 0

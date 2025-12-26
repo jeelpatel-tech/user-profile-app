@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
+import { prisma } from '../../../lib/prisma'
 
 const client = new DynamoDBClient({
     region: process.env.NEXT_PUBLIC_AWS_REGION,
@@ -10,22 +11,19 @@ const client = new DynamoDBClient({
     },
 });
 
-const docClient = DynamoDBDocumentClient.from(client);
-
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "UserProfile";
 
 export async function GET(request: Request) {
     try {
-        const command = new ScanCommand({
-            TableName: TABLE_NAME,
-        });
-
-        const response = await docClient.send(command);
-
+        const response = await prisma.user.findMany();
         return NextResponse.json({
-            users: response.Items || [],
-            count: response.Count || 0
+            users: response || [],
+            count: response?.length || 0
         });
+        // return NextResponse.json({
+        //     users: response,
+        //     count: response?.Count || 0
+        // });
     } catch (error) {
         console.error("DynamoDB Scan Error:", error);
         return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
